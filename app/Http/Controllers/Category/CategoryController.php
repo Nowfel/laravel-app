@@ -47,6 +47,7 @@ class CategoryController extends Controller
         $data = [
             'name' => $request->name,
             'description' => $request->description,
+            'price' => $request->price,
         ];
 
         Category::create($data);
