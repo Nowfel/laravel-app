@@ -10,7 +10,12 @@ class ProductController extends Controller
     
     public function index()
     {
-        return Product::all();
+        $product = Product::all();
+
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+        return response()->json($product, 200);
     }
 
   
@@ -21,32 +26,53 @@ class ProductController extends Controller
             'price' => 'required'
         ]);
 
-        return Product::create($request->all());
+        $product = Product::create($request->all());
+        return response()->json(['message' => 'Product created successfully', 'data' => $product], 201);
     }
 
     
     public function show($id)
     {
-        return Product::find($id);
+        // return Product::find($id);
+        $product = Product::find($id);
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+        return response()->json($product, 200);
     }
 
    
     public function update(Request $request, $id)
     {
         $product = Product::find($id);
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
         $product->update($request->all());
-        return $product;
+        return response()->json(['message' => 'Product updated successfully', 'data' => $product], 200);
+
+        
     }
 
    
     public function destroy($id)
     {
-        return Product::destroy($id);
+        // return Product::destroy($id);
+        $product = Product::find($id);
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+        $product->delete();
+        return response()->json(['message' => 'Product deleted successfully'], 204);
     }
 
     public function search($name)
     {
-        return Product::where('name', 'like', '%'.$name.'%')->get();
+        $product = Product::where('name', 'like', '%'.$name.'%')->get();
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+        return response()->json($product, 200);
     }
    
 }
