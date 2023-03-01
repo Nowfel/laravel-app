@@ -34,7 +34,9 @@ class ProductController extends Controller
     public function show($id)
     {
         // return Product::find($id);
-        $product = Product::find($id);
+        $product = Product::withTrashed()->findOrFail($id);
+        $product->restore();
+        // $product = Product::find($id);
         if (!$product) {
             return response()->json(['message' => 'Product not found'], 404);
         }
