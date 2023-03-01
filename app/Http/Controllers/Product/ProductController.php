@@ -9,13 +9,28 @@ use App\Http\Controllers\Controller;
 class ProductController extends Controller
 {
     
-    public function index()
+    public function index(Request $request)
     {
 
-        $products = Product::orderby('id', 'desc')->get();
+        // $products = Product::orderby('id', 'desc')->get();
 
         // $product = Product::where('name', 'iPhone 13')->first();
         // $product = Product::find(1);
+        // $products = Product::get()
+
+        $priceFilter = $request->input('price_filter');
+
+        $query = Product::query();
+    
+        if ($priceFilter) {
+            [$minPrice, $maxPrice] = explode('-', $priceFilter);
+            $query->where('price', '>=', $minPrice)->where('price', '<=', $maxPrice);
+        }
+    
+        $products = $query->get();
+    
+        return view('product', compact('products', 'priceFilter'));
+
 
 
 
@@ -55,7 +70,8 @@ class ProductController extends Controller
 
     public function show(string $id)
     {
-        //
+        $product = Product::find($id);
+        
     }
 
     
