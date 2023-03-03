@@ -1,6 +1,9 @@
 <?php
 
 namespace App\Providers;
+use App\Repositories\AuthInterface;
+use App\Repositories\AuthRepository;
+
 
 use Illuminate\Support\ServiceProvider;
 
@@ -9,9 +12,9 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
-    public function register(): void
+    public function register()
     {
-        //
+        $this->app->bind(AuthInterface::class, AuthRepository::class);
     }
 
     /**

@@ -8,6 +8,8 @@ class RepositoryServiceProvider extends ServiceProvider {
         $this->app->bind(
             'App\Repositories\ProductInterface',
             'App\Repositories\ProductRepository',
+            'App\Repositories\AuthInterface',
+            'App\Repositories\AuthRepository',
         );
     }
 }

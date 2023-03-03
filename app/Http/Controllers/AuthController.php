@@ -1,59 +1,34 @@
 <?php
-
 namespace App\Http\Controllers;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
+use App\Repositories\AuthInterface;
 
 class AuthController extends Controller
 {
-    public function register(Request $request) {
-        $fields = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string|unique:users,email',
-            'password' => 'required|string|confirmed'
-        ]);
+    protected $authRepository;
 
-        $user = User::create([
-            'name' => $fields['name'],
-            'email' => $fields['email'],
-            'password' => bcrypt($fields['password'])
-        ]);
-
-        $token = $user->createToken('myapptoken')->accessToken;
-
-        $response = [
-            'user' => $user,
-            'token' => $token
-        ];
-
-        return response($response, 201);
+    public function __construct(AuthInterface $authRepository)
+    {
+        $this->authRepository = $authRepository;
     }
 
-    public function login(Request $request) {
-        $credentials = $request->validate([
-            'email' => 'required|string',
-            'password' => 'required|string'
-        ]);
+    public function register(Request $request)
+    {
+        $user = $this->authRepository->register($request->all());
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            $token = $user->createToken('myapptoken')->accessToken;
-
-            return response([
-                'user' => $user,
-                'token' => $token
-            ]);
-        }
-
-        throw ValidationException::withMessages([
-            'email' => 'Invalid email or password',
-        ]);
+        return response()->json($user, 201);
     }
 
-    public function logout(Request $request) {
-        auth()->user()->tokens()->delete();
+    public function login(Request $request)
+    {
+        $user = $this->authRepository->login($request->all());
+
+        return response()->json($user);
+    }
+
+    public function logout(Request $request)
+    {
+        $this->authRepository->logout();
 
         return [
             'message' => 'Logged out'
