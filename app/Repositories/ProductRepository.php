@@ -4,38 +4,38 @@ namespace App\Repositories;
 
 use App\Models\Product;
 
-class ProductRepository
+class ProductRepository implements ProductInterface
 {
     public function all()
     {
         return Product::all();
     }
 
-    public function create($data)
+    public function create(array $data)
     {
         return Product::create($data);
     }
 
-    public function find($id)
+    public function update($id, array $data)
     {
-        return Product::findOrFail($id);
-    }
-
-    public function update($id, $data)
-    {
-        $product = $this->find($id);
+        $product = Product::find($id);
         $product->update($data);
         return $product;
     }
 
     public function delete($id)
     {
-        $product = $this->find($id);
+        $product = Product::find($id);
         $product->delete();
+    }
+
+    public function find($id)
+    {
+        return Product::find($id);
     }
 
     public function search($name)
     {
-        return Product::where('name', 'like', '%'.$name.'%')->get();
+        return Product::where('name', 'like', '%' . $name . '%')->get();
     }
 }
