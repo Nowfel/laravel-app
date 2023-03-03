@@ -7,7 +7,7 @@ use App\Http\Controllers\ProductController;
 
 
 Route::middleware('api')->group(function () {
-    //  protected API routes 
+    // Your protected API route
     Route::post('/products', [ProductController::class, 'store']);
     Route::put('/products/{id}', [ProductController::class, 'update']);
     Route::delete('/products/{id}', [ProductController::class, 'destroy']);

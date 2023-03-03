@@ -2,23 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
+use App\Repositories\ProductRepository;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    
-    public function index()
-    {
-        $product = Product::all();
+    protected $productRepository;
 
-        if (!$product) {
-            return response()->json(['message' => 'Product not found'], 404);
-        }
-        return response()->json($product, 200);
+    public function __construct(ProductRepository $productRepository)
+    {
+        $this->productRepository = $productRepository;
     }
 
-  
+    public function index()
+    {
+        $products = $this->productRepository->all();
+
+        if ($products->isEmpty()) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+
+        return response()->json($products, 200);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -26,61 +32,43 @@ class ProductController extends Controller
             'price' => 'required'
         ]);
 
-        $product = Product::create($request->all());
+        $product = $this->productRepository->create($request->all());
         return response()->json(['message' => 'Product created successfully', 'data' => $product], 201);
     }
 
-    
     public function show($id)
     {
-        // return Product::find($id);
-        $product = Product::withTrashed()->findOrFail($id);
-        // $records = Product::onlyTrashed()->get();
+        $product = $this->productRepository->find($id);
 
-
-        // To restore a soft-deleted record
-        // This will restore the product to the database and remove the deleted_at timestamp.
-        $product->restore();
-
-        // $product = Product::find($id);
         if (!$product) {
             return response()->json(['message' => 'Product not found'], 404);
         }
+
         return response()->json($product, 200);
     }
 
-   
     public function update(Request $request, $id)
     {
-        $product = Product::find($id);
-        if (!$product) {
-            return response()->json(['message' => 'Product not found'], 404);
-        }
-        $product->update($request->all());
-        return response()->json(['message' => 'Product updated successfully', 'data' => $product], 200);
+        $product = $this->productRepository->update($id, $request->all());
 
-        
+        return response()->json(['message' => 'Product updated successfully', 'data' => $product], 200);
     }
 
-   
     public function destroy($id)
     {
-        // return Product::destroy($id);
-        $product = Product::find($id);
-        if (!$product) {
-            return response()->json(['message' => 'Product not found'], 404);
-        }
-        $product->delete();
+        $this->productRepository->delete($id);
+
         return response()->json(['message' => 'Product deleted successfully'], 204);
     }
 
     public function search($name)
     {
-        $product = Product::where('name', 'like', '%'.$name.'%')->get();
-        if ($product) {
+        $products = $this->productRepository->search($name);
+
+        if ($products->isEmpty()) {
             return response()->json(['message' => 'Product not found'], 404);
         }
-        return response()->json($product, 200);
+
+        return response()->json($products, 200);
     }
-   
 }
